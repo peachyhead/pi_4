@@ -1,5 +1,6 @@
 package cooktop.interfaces;
 
+import cooktop.EnvironmentProcessor;
 import cooktop.ReactiveProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -72,6 +73,7 @@ public abstract class HeatProvider {
     }
 
     public void removeHeatProvider() {
+        EnvironmentProcessor.unbind(content);
         this.content = null;
         onContentChange.putValue("", null);
     }

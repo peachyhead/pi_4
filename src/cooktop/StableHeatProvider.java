@@ -22,7 +22,7 @@ public class StableHeatProvider extends HeatProvider {
 
     @Override
     protected double getCollisionSurface() {
-        return 150; // Площадь контакта зависит от объема жидкости
+        return 0.375f; // Площадь контакта зависит от объема жидкости
     }
 
     @Override
@@ -37,7 +37,7 @@ public class StableHeatProvider extends HeatProvider {
 
         // Рассчитываем поглощенное тепло
         double deltaTemperature = externalTemperature - currentTemp;
-        double absorbedHeat = deltaTemperature * getHeatTransferCoefficient();
+        double absorbedHeat = deltaTemperature * getHeatTransferCoefficient() * getCollisionSurface();
         
         if (currentTemp < BOILING_POINT) {
             // Рассчитываем новую температуру жидкости без учета испарения
@@ -56,7 +56,7 @@ public class StableHeatProvider extends HeatProvider {
             }
         } else {
             // Если уже кипит, обрабатываем испарение
-            handleBoilingAndEvaporation(absorbedHeat * getCollisionSurface());
+            handleBoilingAndEvaporation(absorbedHeat);
         }
     }
 
@@ -65,8 +65,10 @@ public class StableHeatProvider extends HeatProvider {
             double mass = getMass();
             // Рассчитываем количество тепла, необходимое для испарения текущего объема
             double heatRequiredForCurrentVolumeEvaporation = LATENT_HEAT_OF_EVAPORATION * mass;
-            if (absorbedHeat >= heatRequiredForCurrentVolumeEvaporation) {
-                decreaseVolume(absorbedHeat);
+            var currentHeat = absorbedHeat + heatRequiredForCurrentVolumeEvaporation;
+            System.out.println(absorbedHeat + " - " + heatRequiredForCurrentVolumeEvaporation);
+            if (currentHeat > heatRequiredForCurrentVolumeEvaporation) {
+                decreaseVolume(currentHeat);
             } else {
                 calculateHeatFromSteam(absorbedHeat);
             }
@@ -90,7 +92,7 @@ public class StableHeatProvider extends HeatProvider {
     private void decreaseVolume(double absorbedHeat) {
         // Рассчитываем объем испаренной жидкости
         double evaporatedVolume = absorbedHeat / LATENT_HEAT_OF_EVAPORATION;
-        volume -= evaporatedVolume / 1000;
+        volume -= evaporatedVolume / 100000;
 
         // Если весь объем испарился, сбрасываем температуру и устанавливаем статус высыхания
         if (volume <= 0) {

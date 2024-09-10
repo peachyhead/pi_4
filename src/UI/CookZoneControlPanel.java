@@ -1,6 +1,7 @@
 package UI;
 
 import cooktop.CookZoneModel;
+import cooktop.EnvironmentProcessor;
 import cooktop.PotModel;
 import cooktop.StableHeatProvider;
 import cooktop.interfaces.ZoneHeatMode;
@@ -51,6 +52,7 @@ public class CookZoneControlPanel extends JPanel {
                         1f, 1f, 4184f);
                 pot.addHeatProvider(water);
                 cookZoneModel.addHeatProvider(pot);
+                EnvironmentProcessor.bind(pot);
             }
             setToggleInfo(cookZoneModel);
         });
