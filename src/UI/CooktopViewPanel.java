@@ -2,6 +2,7 @@ package UI;
 
 import cooktop.CookZoneModel;
 import cooktop.CooktopModel;
+import cooktop.CooktopSignal;
 import signal.SignalBus;
 import signal.SignalListener;
 
@@ -31,7 +32,7 @@ public class CooktopViewPanel extends JPanel {
     }
 
     public void initialize(CooktopModel cooktopModel) {
-        SignalBus.subscribe(new SignalListener<String>("zone_select", signal -> {
+        SignalBus.subscribe(new SignalListener<String>(CooktopSignal.cookZoneSelection, signal -> {
             var index = (Integer.parseInt(signal));
             zoneSelectionAction.putValue("", cookZoneViews.get(index).getModel());
         }));

@@ -34,7 +34,7 @@ public class PotView extends JPanel {
         g.setColor(Color.gray);
         g.fillOval(offset.width, offset.height, viewRadius, viewRadius);
 
-        var temperature = potModel.getContent().getCurrentTemperature().get();
+        var temperature = potModel.getContent().get().getCurrentTemperature();
         var lerp = (float) Math.clamp(temperature / 250f, 0f, 1f);
         var color = temperature == 0f
                 ? Color.BLUE

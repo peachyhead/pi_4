@@ -7,7 +7,7 @@ import java.awt.*;
 
 public class CookZoneDataPanel extends JPanel {
     private final JTextField id;
-    private final JTextField temperature;
+    private final JTextField heatTransfer;
     private final JTextField heatMode;
     
     private Thread dataUpdateStream;
@@ -23,7 +23,7 @@ public class CookZoneDataPanel extends JPanel {
         id = getField("Cook zone ID", c);
         c.weightx = 0.5f;
         c.gridy += 1;
-        temperature = getField("Cook zone temperature", c);
+        heatTransfer = getField("Cook zone heat transfer", c);
         c.gridy -= 1;
         c.gridx = 1;
         heatMode = getField("Cook zone heat mode", c);
@@ -42,7 +42,7 @@ public class CookZoneDataPanel extends JPanel {
             while (!Thread.currentThread().isInterrupted()) {
                 ApplyData(cookZoneModel);
                 try {
-                    Thread.sleep(5);
+                    Thread.sleep(10);
                 } catch (InterruptedException e) {
                     break;
                 }
@@ -53,7 +53,7 @@ public class CookZoneDataPanel extends JPanel {
     }
 
     private void ApplyData(CookZoneModel cookZoneModel) {
-        temperature.setText(String.valueOf(cookZoneModel.getTemperature()));
+        heatTransfer.setText(String.valueOf(cookZoneModel.getCurrentHeatTransfer()));
         heatMode.setText(String.valueOf(cookZoneModel.getMode()));
     }
 

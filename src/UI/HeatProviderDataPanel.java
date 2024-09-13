@@ -79,7 +79,7 @@ public class HeatProviderDataPanel extends JPanel {
             while (!Thread.currentThread().isInterrupted()) {
                 ApplyData(cookZoneModel);
                 try {
-                    Thread.sleep(5);
+                    Thread.sleep(10);
                 } catch (InterruptedException e) {
                     break;
                 }
@@ -90,27 +90,29 @@ public class HeatProviderDataPanel extends JPanel {
     }
 
     private void ApplyData(CookZoneModel cookZoneModel) {
-        if (cookZoneModel == null || cookZoneModel.getContent() == null) {
+        if (cookZoneModel == null || cookZoneModel.getContent().get() == null) {
             setBlank();
             return;
         }
         
-        var content = cookZoneModel.getContent();
+        var content = cookZoneModel.getContent().get();
         providerName.setText(content.getName());
-        providerTemperature.setText(String.valueOf(content.getCurrentTemperature().get()));
+        providerTemperature.setText(String.valueOf(content.getCurrentTemperature()));
         providerHTC.setText(String.valueOf(content.getHeatTransferCoefficient()));
-        var providerContent = (StableHeatProvider) content.getContent();
+        var providerContent = (StableHeatProvider) content.getContent().get();
         if (providerContent == null) {
             contentName.setText("");
             contentTemperature.setText("");
             contentHTC.setText("");
+            contentVolume.setText("");
+            contentStatus.setText("");
         }
         else {
             contentName.setText(providerContent.getName());
-            contentTemperature.setText(String.valueOf(providerContent.getCurrentTemperature().get()));
+            contentTemperature.setText(String.valueOf(providerContent.getCurrentTemperature()));
             contentHTC.setText(String.valueOf(providerContent.getHeatTransferCoefficient()));
             contentStatus.setText(providerContent.getCurrentStatus().name());
-            contentVolume.setText(String.valueOf(providerContent.getVolume()));
+            contentVolume.setText(String.valueOf(providerContent.getVolume() * 1000f));
         }
     }
     
@@ -122,6 +124,8 @@ public class HeatProviderDataPanel extends JPanel {
         contentHTC.setText("");
         contentName.setText("");
         contentTemperature.setText("");
+        contentVolume.setText("");
+        contentStatus.setText("");
     }
     
     private JTextField getField(String text, GridBagConstraints c){

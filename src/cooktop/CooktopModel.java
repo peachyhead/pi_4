@@ -11,10 +11,14 @@ public class CooktopModel {
     private final List<CookZoneModel> cookZones = new ArrayList<>(); 
     
     public CooktopModel() {
-        var leftTop = new CookZoneModel(0,300,40f, 1f);
-        var rightTop = new CookZoneModel(1,150,40f, 1f);
-        var leftBottom = new CookZoneModel(2,150,40f, 1f);
-        var rightBottom = new CookZoneModel(3,300,40f, 1f);
+        var leftTop = new CookZoneModel(0,300,600f, "Cook zone", 
+                1f, 1f, 1f, 1f, 1f);
+        var rightTop = new CookZoneModel(1,150,300f, "Cook zone",
+                1f, 1f, 1f, 1f, 1f);
+        var leftBottom = new CookZoneModel(2,150,300f, "Cook zone",
+                1f, 1f, 1f, 1f, 1f);
+        var rightBottom = new CookZoneModel(3,300,600f, "Cook zone",
+                1f, 1f, 1f, 1f, 1f);
         
         cookZones.add(leftTop);
         cookZones.add(rightTop);

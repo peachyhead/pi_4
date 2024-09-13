@@ -5,51 +5,50 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class EnvironmentProcessor {
-    
+
     @Getter @Setter
-    private static double targetTemperature;
-    
+    private static double targetTemperature; // Текущая температура окружающей среды
+
+    private static final HashMap<HeatProvider, HeatProvider> exchangeMap = new HashMap<>();
     private static final ArrayList<HeatProvider> heatProviders = new ArrayList<>();
-    
+
     private static Thread updateStream;
 
+    // Инициализация процесса обновления теплового обмена
     public static void initialize() {
         updateStream = new Thread(() -> {
             while (!Thread.currentThread().isInterrupted()) {
                 double totalHeatTransferredToEnvironment = 0.0;
 
-                // Обрабатываем каждый HeatProvider
                 for (HeatProvider provider : heatProviders) {
-                    synchronized (provider) {
-                        // Рассчитываем изменение температуры между средой и объектом
-                        double initialTemperature = provider.getCurrentTemperature().get();
+                    double deltaTemperature = targetTemperature - provider.getCurrentTemperature();
 
-                        // Обновляем температуру объекта с учетом внешней температуры
-                        provider.update(targetTemperature);
+                    double heatTransfer = provider.getHeatTransferCoefficient() *
+                            provider.getCollisionSurface() * deltaTemperature;
 
-                        // После обновления получаем новое значение температуры объекта
-                        double finalTemperature = provider.getCurrentTemperature().get();
-
-                        // Рассчитываем количество тепла, переданное от/к объекту
-                        double heatTransferred = (finalTemperature - initialTemperature) * provider.getHeatCapacity() * provider.getMass();
-
-                        // Общее тепло, переданное среде
-                        totalHeatTransferredToEnvironment += heatTransferred;
+                    if (heatTransfer > 0) {
+                        provider.update(heatTransfer);
                     }
+
+                    totalHeatTransferredToEnvironment += heatTransfer;
                 }
 
-                // Учитываем тепловой обмен с окружающей средой
-                double environmentHeatCapacity = calculateHeatCapacityOfEnvironment();
-                double deltaEnvironmentTemperature = -totalHeatTransferredToEnvironment / environmentHeatCapacity;
+                for (HeatProvider provider : exchangeMap.keySet()) {
+                    var content = exchangeMap.get(provider);
+                    var heatTransfer = provider.calculateHeatTransferToProvider(content);
+                    content.update(heatTransfer);
+                }
 
-                // Обновляем температуру окружающей среды
+                double environmentHeatCapacity = calculateHeatCapacityOfEnvironment();
+                double deltaEnvironmentTemperature = totalHeatTransferredToEnvironment / environmentHeatCapacity;
+
                 targetTemperature += deltaEnvironmentTemperature;
 
-                // Устанавливаем интервал между циклами
                 try {
-                    Thread.sleep(100); // обновление каждую 1/10 секунды
+                    Thread.sleep(10);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
@@ -58,16 +57,23 @@ public class EnvironmentProcessor {
 
         updateStream.start();
     }
-    public static void bind(HeatProvider heatProvider){
+
+    // Привязка объекта к среде для учета теплового обмена
+    public static void bind(HeatProvider heatProvider) {
         heatProviders.add(heatProvider);
     }
-    
-    public static void unbind(HeatProvider heatProvider){
-        heatProviders.remove(heatProvider);
+
+    public static void bind(HeatProvider heatProvider, HeatProvider content) {
+        exchangeMap.put(heatProvider, content);
     }
 
+    // Отключение объекта от среды
+    public static void unbind(HeatProvider heatProvider) {
+        heatProviders.remove(heatProvider);
+        exchangeMap.remove(heatProvider);
+    }
+    
     private static double calculateHeatCapacityOfEnvironment() {
-        // Примерное значение теплоемкости окружающей среды (может быть уточнено)
-        return 100000; // произвольное значение для расчета изменений температуры среды
+        return 100000;
     }
 }

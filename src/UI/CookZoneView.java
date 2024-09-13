@@ -1,6 +1,7 @@
 package UI;
 
 import cooktop.CookZoneModel;
+import cooktop.CooktopSignal;
 import cooktop.PotModel;
 import lombok.Getter;
 import signal.SignalBus;
@@ -41,7 +42,7 @@ public class CookZoneView extends JPanel {
             @Override
             public void mouseReleased(MouseEvent e) {
                 super.mouseReleased(e);
-                SignalBus.fire("zone_select", (String.valueOf(model.getId())));
+                SignalBus.fire(CooktopSignal.cookZoneSelection, String.valueOf(model.getId()));
             }
         });
     }
@@ -62,8 +63,8 @@ public class CookZoneView extends JPanel {
         g.fillOval(offset + clipBounds.x, offset + clipBounds.y, 
                 model.getRadius(), model.getRadius());
         
-        var lerp = Math.min(model.getTemperature() / 250f, 1f);
-        var color = model.getTemperature() == 0f
+        var lerp = (float)  Math.min(model.getCurrentHeatTransfer() / 3000f, 1f);
+        var color = model.getCurrentHeatTransfer() == 0f
             ? Color.BLACK
             : new Color(lerp, 0f, 0f); 
                 
